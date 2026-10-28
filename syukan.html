@@ -103,7 +103,7 @@
 
 		<p><strong>■ 注意事項</strong></p>
 		<ul>
-			<li>正解がある問題ではありません。直感的に「ご自身がどう感じられるか」をお答えください。</li>
+			<li>正解がある問題ではありません。直感的にコネクトして「ご自身がどう感じられるか」をお答えください。</li>
 			<li>ご回答いただいたデータは、研究・分析の目的にのみ使用し、個人情報が外部に公開されることは一切ありません。</li>
 		</ul>
 
@@ -161,10 +161,10 @@
 	</div>
 
 	<script>
-		// GASのウェブアプリURL
-		const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyuajl7CISCY8w4GR4XiY7SIXbBK5jwQy9NtvYGAMXr9zZThSIL3nG4Cq8FAJHdixPqeA/exec";
+		// 正しいGASのウェブアプリURLを設定
+		const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyuajl7CISCY8w4GR4XiY7SIXbBK5jwQy9NtvYGAMXr9zZThSIL3ngCq8FAJHdixPqeA/exec";
 
-		// 問題データ定義（例として3問。120問にする場合はここに画像パスを追加してください）
+		// 問題データ定義（例として3問）
 		const questions = [
 		{ no: 1, image: "images/1矢倉.png" },
 		{ no: 2, image: "images/2矢倉.png" },
@@ -201,14 +201,13 @@
 		document.getElementById("question-number").innerText = `第 ${q.no} 問 / ${questions.length}`;
 		document.getElementById("board-image").src = q.image;
 
-		// 開始時刻を高精度（ミリ秒）および日時形式で記録
 		questionStartTime = performance.now();
 		q.startISO = new Date().toLocaleString();
 		}
 
 		function recordAnswer(selectedAnswer) {
 		const endTime = performance.now();
-		const responseTimeMs = Math.round(endTime - questionStartTime); // 思考時間(ms)
+		const responseTimeMs = Math.round(endTime - questionStartTime);
 
 		results.push({
 		questionNo: questions[currentIndex].no,
@@ -230,21 +229,33 @@
 		answers: results
 		};
 
-		// GASへデータを送信（no-corsモードまたは通常のfetchで確実に対処）
-		fetch(GAS_ENDPOINT_URL, {
-		method: "POST",
-		mode: "no-cors",
-		headers: { "Content-Type": "text/plain" },
-		body: JSON.stringify(payload)
-		})
-		.then(() => {
-		// no-corsではレスポンスの中身が見れないため、送信完了として扱う
+		// 隠しフォームを動的に生成してPOST送信する方式（CORSを確実に回避）
+		const form = document.createElement('form');
+		form.method = 'POST';
+		form.action = GAS_ENDPOINT_URL;
+		form.target = 'hidden_iframe';
+
+		const input = document.createElement('input');
+		input.type = 'hidden';
+		input.name = 'data';
+		input.value = JSON.stringify(payload);
+		form.appendChild(input);
+
+		// 非同期送信用の一時的iframe
+		let iframe = document.getElementById('hidden_iframe');
+		if (!iframe) {
+		iframe = document.createElement('iframe');
+		iframe.name = 'hidden_iframe';
+		iframe.id = 'hidden_iframe';
+		iframe.style.display = 'none';
+		document.body.appendChild(iframe);
+		}
+
+		document.body.appendChild(form);
+		form.submit();
+		document.body.removeChild(form);
+
 		document.getElementById("status-message").innerText = "お疲れ様でした！すべてのデータがスプレッドシートに保存されました。";
-		})
-		.catch(err => {
-		console.error(err);
-		document.getElementById("status-message").innerText = "データの送信に失敗しましたが、ご協力ありがとうございました。";
-		});
 		}
 	</script>
 </body>
