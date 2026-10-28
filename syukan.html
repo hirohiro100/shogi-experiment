@@ -2,15 +2,16 @@
 <html lang="ja">
 <head>
 	<meta charset="UTF-8">
-	<title>将棋形勢判断主観評価実験</title>
+	<title>局面の形勢判断実験</title>
 	<style>
 		body {
 			font-family: sans-serif;
-			max-width: 600px;
+			max-width: 650px;
 			margin: 40px auto;
 			padding: 20px;
 			background-color: #f9f9f9;
 			color: #333;
+			line-height: 1.6;
 		}
 
 		.section {
@@ -48,7 +49,7 @@
 		}
 
 		button {
-			padding: 10px 20px;
+			padding: 12px 24px;
 			font-size: 16px;
 			cursor: pointer;
 			border: none;
@@ -72,12 +73,43 @@
 		.form-group {
 			margin-bottom: 20px;
 		}
+
+		ul {
+			padding-left: 20px;
+		}
 	</style>
 </head>
 <body>
 
-	<!-- 1. 事前アンケート画面 -->
-	<div id="setup-section" class="section active">
+	<!-- 1. 実験の説明画面（ご要望の画面） -->
+	<div id="intro-section" class="section active">
+		<h2>局面の形勢判断実験</h2>
+		<hr style="border:0; border-top:1px solid #ddd; margin-bottom:20px;">
+
+		<p><strong>【実験へのご協力のお願い】</strong></p>
+		<p>本アンケート（実験）にご協力いただきありがとうございます。<br>本実験は、とある将棋の局面において形勢判断についての傾向を調査することを目的としています。</p>
+
+		<p>
+			<strong>■ 実験の内容</strong><br>
+			提示されるいくつかの将棋の局面図をご覧いただき、それぞれの局面における形勢（どちらが優勢か、互角かなど）について、最も適切と思われるものを選択してください。また、実験前にアンケートの記述をお願いします。
+		</p>
+
+		<p><strong>■ 問題数</strong>：全120問（1構成30問 / 1問30秒程度・ただし目安）</p>
+
+		<p><strong>■ 注意事項</strong></p>
+		<ul>
+			<li>正解がある問題ではありません。直感的に「ご自身がどう感じられるか」をお答えください。</li>
+			<li>ご回答いただいたデータは、研究・分析の目的にのみ使用し、個人情報が外部に公開されることは一切ありません。</li>
+		</ul>
+
+		<p style="margin-top: 30px;">それでは、以下の内容をご確認の上、次へ進んでください。</p>
+		<div style="text-align: right; margin-top: 20px;">
+			<button onclick="goToSection('setup-section')">次へ進む</button>
+		</div>
+	</div>
+
+	<!-- 2. 事前アンケート画面 -->
+	<div id="setup-section" class="section">
 		<h2>実験前の確認</h2>
 		<div class="form-group">
 			<label>被験者ID (お名前やIDなど):</label>
@@ -92,10 +124,12 @@
 				<option value="その他">その他 / なし</option>
 			</select>
 		</div>
-		<button onclick="startExperiment()">実験を開始する</button>
+		<div style="text-align: right; margin-top: 20px;">
+			<button onclick="startExperiment()">実験を開始する</button>
+		</div>
 	</div>
 
-	<!-- 2. 実験画面 -->
+	<!-- 3. 実験画面 -->
 	<div id="experiment-section" class="section">
 		<h3 id="question-number">第 1 問</h3>
 		<div class="board-container">
@@ -109,17 +143,17 @@
 		</div>
 	</div>
 
-	<!-- 3. 完了画面 -->
+	<!-- 4. 完了画面 -->
 	<div id="complete-section" class="section">
 		<h2>実験完了</h2>
 		<p id="status-message">データをスプレッドシートに送信中です...</p>
 	</div>
 
 	<script>
-		// ★取得したGASのウェブアプリURLを設定済み
+		// GASのウェブアプリURL
 		const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyuajl7CISCY8w4GR4XiY7SIXbBK5jwQy9NtvYGAMXr9zZThSIL3ngCq8FAJHdixPqeA/exec";
 
-		// 問題データ定義（例として3問。120問にする場合はここにパスを追加してください）
+		// 問題データ定義（例として3問。120問にする場合はここに画像パスを追加してください）
 		const questions = [
 		{ no: 1, image: "images/1矢倉.png" },
 		{ no: 2, image: "images/2矢倉.png" },
@@ -132,14 +166,17 @@
 		let appUsed = "";
 		const results = [];
 
+		function goToSection(sectionId) {
+		document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+		document.getElementById(sectionId).classList.add('active');
+		}
+
 		function startExperiment() {
 		const idInput = document.getElementById("subject-id").value.trim();
 		subjectId = idInput !== "" ? idInput : "匿名";
 		appUsed = document.getElementById("app-used").value;
 
-		document.getElementById("setup-section").classList.remove("active");
-		document.getElementById("experiment-section").classList.add("active");
-
+		goToSection('experiment-section');
 		showQuestion();
 		}
 
@@ -150,13 +187,12 @@
 		}
 
 		const q = questions[currentIndex];
-		document.getElementById("question-number.innerText = `第 ${q.no} 問 / ${questions.length}`; // 修正
 		document.getElementById("question-number").innerText = `第 ${q.no} 問 / ${questions.length}`;
 		document.getElementById("board-image").src = q.image;
 
-		// 開始時刻を高精度（ミリ秒）およびISO文字列で記録
+		// 開始時刻を高精度（ミリ秒）および日時形式で記録
 		questionStartTime = performance.now();
-		q.startISO = new Date().toLocaleString(); // スプレッドシートで見やすい日時形式
+		q.startISO = new Date().toLocaleString();
 		}
 
 		function recordAnswer(selectedAnswer) {
@@ -175,8 +211,7 @@
 		}
 
 		function finishExperiment() {
-		document.getElementById("experiment-section").classList.remove("active");
-		document.getElementById("complete-section").classList.add("active");
+		goToSection('complete-section');
 
 		const payload = {
 		subjectId: subjectId,
