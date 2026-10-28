@@ -2,319 +2,203 @@
 <html lang="ja">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>局面の形勢判断実験</title>
+	<title>将棋形勢判断主観評価実験</title>
 	<style>
 		body {
-			font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", MeiYo, sans-serif;
-			background-color: #f4f6f8;
-			margin: 0;
+			font-family: sans-serif;
+			max-width: 600px;
+			margin: 40px auto;
 			padding: 20px;
+			background-color: #f9f9f9;
 			color: #333;
-		}
-
-		.container {
-			max-width: 720px;
-			margin: 0 auto;
-			background: #fff;
-			padding: 30px;
-			border-radius: 12px;
-			box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-		}
-
-		h1 {
-			font-size: 24px;
-			border-bottom: 2px solid #4a90e2;
-			padding-bottom: 10px;
-			margin-top: 0;
 		}
 
 		.section {
 			display: none;
+			background: #fff;
+			padding: 30px;
+			border-radius: 8px;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 		}
 
-			.section.active {
-				display: block;
-			}
-
-		p, li {
-			line-height: 1.6;
+		.active {
+			display: block;
 		}
 
-		.note-box {
-			background-color: #f8f9fa;
-			border-left: 4px solid #4a90e2;
-			padding: 12px 16px;
-			margin: 15px 0;
+		h2, h3 {
+			margin-top: 0;
 		}
 
-		.btn {
-			display: inline-block;
-			background-color: #4a90e2;
-			color: #fff;
-			border: none;
-			padding: 12px 28px;
-			font-size: 16px;
-			border-radius: 6px;
-			cursor: pointer;
+		.board-container {
+			text-align: center;
+			margin: 20px 0;
+		}
+
+		img {
+			max-width: 100%;
+			height: auto;
+			border: 1px solid #ccc;
+		}
+
+		.btn-group {
+			display: flex;
+			gap: 10px;
+			justify-content: center;
 			margin-top: 20px;
-			transition: background-color 0.2s;
 		}
 
-			.btn:hover {
-				background-color: #357abd;
+		button {
+			padding: 10px 20px;
+			font-size: 16px;
+			cursor: pointer;
+			border: none;
+			border-radius: 4px;
+			background-color: #007bff;
+			color: white;
+		}
+
+			button:hover {
+				background-color: #0056b3;
 			}
 
-			.btn:disabled {
-				background-color: #ccc;
-				cursor: not-allowed;
-			}
+		input, select {
+			padding: 8px;
+			font-size: 16px;
+			width: 100%;
+			box-sizing: border-box;
+			margin-top: 5px;
+		}
 
 		.form-group {
 			margin-bottom: 20px;
-		}
-
-		label {
-			display: block;
-			font-weight: bold;
-			margin-bottom: 8px;
-		}
-
-		input[type="text"] {
-			width: 100%;
-			padding: 10px;
-			box-sizing: border-box;
-			border: 1px solid #ccc;
-			border-radius: 4px;
-			font-size: 15px;
-		}
-
-		.board-img {
-			max-width: 100%;
-			height: auto;
-			display: block;
-			margin: 15px auto;
-			border: 1px solid #ddd;
-		}
-
-		.options-grid {
-			display: flex;
-			justify-content: space-between;
-			gap: 5px;
-			margin-top: 20px;
-			overflow-x: auto;
-		}
-
-		.option-item {
-			flex: 1;
-			text-align: center;
-			background: #f8f9fa;
-			padding: 10px 4px;
-			border: 1px solid #ddd;
-			border-radius: 6px;
-			cursor: pointer;
-			font-size: 13px;
-		}
-
-			.option-item input {
-				display: block;
-				margin: 6px auto 0;
-			}
-
-		.progress {
-			font-size: 14px;
-			color: #666;
-			margin-bottom: 10px;
 		}
 	</style>
 </head>
 <body>
 
-	<div class="container">
-
-		<!-- ================= 1. 教示画面 ================= -->
-		<div id="sec-instruction" class="section active">
-			<h1>局面の形勢判断実験</h1>
-			<p><strong>【実験へのご協力のお願い】</strong></p>
-			<p>
-				本アンケート（実験）にご協力いただきありがとうございます。<br>
-				本実験は、とある将棋の局面において形勢判断についての傾向を調査することを目的としています。
-			</p>
-
-			<div class="note-box">
-				<p>
-					<strong>■ 実験の内容</strong><br>
-					提示されるいくつかの将棋の局面図をご覧いただき、それぞれの局面における形勢について、最も適切と思われるものを選択してください。
-				</p>
-
-				<p><strong>■ 問題数3問（テスト用）</strong></p>
-
-				<p>
-					<strong>■ 注意事項</strong><br>
-					・正解がある問題ではありません。直感的に「ご自身がどう感じるか」をお答えください。
-				</p>
-			</div>
-
-			<button class="btn" onclick="goToSection('sec-survey')">次へ進む</button>
+	<!-- 1. 事前アンケート画面 -->
+	<div id="setup-section" class="section active">
+		<h2>実験前の確認</h2>
+		<div class="form-group">
+			<label>被験者ID (お名前やIDなど):</label>
+			<input type="text" id="subject-id" placeholder="例: user01">
 		</div>
-
-
-		<!-- ================= 2. 事前アンケート画面 ================= -->
-		<div id="sec-survey" class="section">
-			<h1>事前アンケート</h1>
-			<p>実験を開始する前に、以下の項目にお答えください。</p>
-
-			<div class="form-group">
-				<label for="participant-id">1. 被験者ID（ニックネーム可）</label>
-				<input type="text" id="participant-id" placeholder="例: hirohiro100">
-			</div>
-
-			<div class="form-group">
-				<label for="shogi-app">2. 普段よく使う将棋アプリ</label>
-				<input type="text" id="shogi-app" placeholder="例: 81道場">
-			</div>
-
-			<button class="btn" onclick="startExperiment()">実験を開始する</button>
+		<div class="form-group">
+			<label>普段よく使う将棋アプリ:</label>
+			<select id="app-used">
+				<option value="将棋ウォーズ">将棋ウォーズ</option>
+				<option value="将棋クエスト">将棋クエスト</option>
+				<option value="81Dojo">81Dojo</option>
+				<option value="その他">その他 / なし</option>
+			</select>
 		</div>
+		<button onclick="startExperiment()">実験を開始する</button>
+	</div>
 
-
-		<!-- ================= 3. 局面評価テスト画面 ================= -->
-		<div id="sec-experiment" class="section">
-			<div class="progress">問題 <span id="current-num">1</span> / <span id="total-num">3</span></div>
-
-			<!-- 局面画像（imagesフォルダを指定） -->
-			<img id="board-image" class="board-img" src="" alt="局面図">
-
-			<div class="options-grid">
-				<label class="option-item">
-					先手勝勢
-					<input type="radio" name="judgment" value="先手勝勢">
-				</label>
-				<label class="option-item">
-					先手優勢
-					<input type="radio" name="judgment" value="先手優勢">
-				</label>
-				<label class="option-item">
-					先手有利
-					<input type="radio" name="judgment" value="先手有利">
-				</label>
-				<label class="option-item">
-					互角
-					<input type="radio" name="judgment" value="互角">
-				</label>
-				<label class="option-item">
-					後手有利
-					<input type="radio" name="judgment" value="後手有利">
-				</label>
-				<label class="option-item">
-					後手優勢
-					<input type="radio" name="judgment" value="後手優勢">
-				</label>
-				<label class="option-item">
-					後手勝勢
-					<input type="radio" name="judgment" value="後手勝勢">
-				</label>
-			</div>
-
-			<button class="btn" id="next-btn" onclick="submitAnswer()" disabled>回答して次へ</button>
+	<!-- 2. 実験画面 -->
+	<div id="experiment-section" class="section">
+		<h3 id="question-number">第 1 問</h3>
+		<div class="board-container">
+			<img id="board-image" src="" alt="局面図">
 		</div>
-
-
-		<!-- ================= 4. 完了画面 ================= -->
-		<div id="sec-complete" class="section">
-			<h1>実験完了</h1>
-			<p>お疲れ様でした！すべての回答が完了しました。</p>
+		<p style="text-align: center; font-weight: bold;">現在の形勢は？</p>
+		<div class="btn-group">
+			<button onclick="recordAnswer('優勢')">優勢</button>
+			<button onclick="recordAnswer('互角')">互角</button>
+			<button onclick="recordAnswer('劣勢')">劣勢</button>
 		</div>
+	</div>
 
+	<!-- 3. 完了画面 -->
+	<div id="complete-section" class="section">
+		<h2>実験完了</h2>
+		<p id="status-message">データをスプレッドシートに送信中です...</p>
 	</div>
 
 	<script>
-		// GASのウェブアプリURL（後で連携する際に書き換えます）
-		const GAS_URL = "https://script.google.com/macros/s/YOUR_GAS_DEPLOYMENT_ID/exec";
+		// ★取得したGASのウェブアプリURLを設定済み
+		const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyuajl7CISCY8w4GR4XiY7SIXbBK5jwQy9NtvYGAMXr9zZThSIL3ngCq8FAJHdixPqeA/exec";
 
-		// imagesフォルダの中にある3つの画像を指定
-		const problems = [
-		{ id: "Q1", img: "images/1矢倉.png" },
-		{ id: "Q2", img: "images/2矢倉.png" },
-		{ id: "Q3", img: "images/3矢倉.png" }
+		// 問題データ定義（例として3問。120問にする場合はここにパスを追加してください）
+		const questions = [
+		{ no: 1, image: "images/1矢倉.png" },
+		{ no: 2, image: "images/2矢倉.png" },
+		{ no: 3, image: "images/3矢倉.png" }
 		];
 
 		let currentIndex = 0;
-		let startTime = 0;
-		let participantId = "";
-		let shogiApp = "";
-
-		document.querySelectorAll('input[name="judgment"]').forEach(radio => {
-		radio.addEventListener('change', () => {
-		document.getElementById('next-btn').disabled = false;
-		});
-		});
-
-		function goToSection(sectionId) {
-		document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-		document.getElementById(sectionId).classList.add('active');
-		}
+		let questionStartTime = 0;
+		let subjectId = "";
+		let appUsed = "";
+		const results = [];
 
 		function startExperiment() {
-		participantId = document.getElementById('participant-id').value.trim();
-		shogiApp = document.getElementById('shogi-app').value.trim();
+		const idInput = document.getElementById("subject-id").value.trim();
+		subjectId = idInput !== "" ? idInput : "匿名";
+		appUsed = document.getElementById("app-used").value;
 
-		if (!participantId) {
-		alert("IDを入力してください。");
+		document.getElementById("setup-section").classList.remove("active");
+		document.getElementById("experiment-section").classList.add("active");
+
+		showQuestion();
+		}
+
+		function showQuestion() {
+		if (currentIndex >= questions.length) {
+		finishExperiment();
 		return;
 		}
 
-		document.getElementById('total-num').textContent = problems.length;
-		goToSection('sec-experiment');
-		loadProblem(0);
+		const q = questions[currentIndex];
+		document.getElementById("question-number.innerText = `第 ${q.no} 問 / ${questions.length}`; // 修正
+		document.getElementById("question-number").innerText = `第 ${q.no} 問 / ${questions.length}`;
+		document.getElementById("board-image").src = q.image;
+
+		// 開始時刻を高精度（ミリ秒）およびISO文字列で記録
+		questionStartTime = performance.now();
+		q.startISO = new Date().toLocaleString(); // スプレッドシートで見やすい日時形式
 		}
 
-		function loadProblem(index) {
-		const prob = problems[index];
-		document.getElementById('current-num').textContent = index + 1;
-		document.getElementById('board-image').src = prob.img;
+		function recordAnswer(selectedAnswer) {
+		const endTime = performance.now();
+		const responseTimeMs = Math.round(endTime - questionStartTime); // 思考時間(ms)
 
-		document.querySelectorAll('input[name="judgment"]').forEach(r => r.checked = false);
-		document.getElementById('next-btn').disabled = true;
-
-		// 画像が表示された瞬間からミリ秒計測スタート
-		startTime = Date.now();
-		}
-
-		function submitAnswer() {
-		const endTime = Date.now();
-		const thinkingTimeMs = endTime - startTime; // 思考時間（ミリ秒）
-
-		const selectedRadio = document.querySelector('input[name="judgment"]:checked');
-		const judgment = selectedRadio ? selectedRadio.value : "";
-		const currentProblem = problems[currentIndex];
-
-		const payload = {
-		participantId: participantId,
-		shogiApp: shogiApp,
-		problemId: currentProblem.id,
-		judgment: judgment,
-		thinkingTimeMs: thinkingTimeMs
-		};
-
-		// GASへのデータ送信（URLが設定されている場合のみ作動）
-		if (GAS_URL && !GAS_URL.includes("YOUR_GAS_DEPLOYMENT_ID")) {
-		fetch(GAS_URL, {
-		method: "POST",
-		mode: "no-cors",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(payload)
-		}).catch(err => console.error("Data send error:", err));
-		}
+		results.push({
+		questionNo: questions[currentIndex].no,
+		answer: selectedAnswer,
+		startTime: questions[currentIndex].startISO,
+		responseTime: responseTimeMs
+		});
 
 		currentIndex++;
-		if (currentIndex < problems.length) {
-		loadProblem(currentIndex);
-		} else {
-		goToSection('sec-complete');
+		showQuestion();
 		}
+
+		function finishExperiment() {
+		document.getElementById("experiment-section").classList.remove("active");
+		document.getElementById("complete-section").classList.add("active");
+
+		const payload = {
+		subjectId: subjectId,
+		appUsed: appUsed,
+		answers: results
+		};
+
+		// GASへデータを送信（CORS対策のため text/plain で送信）
+		fetch(GAS_ENDPOINT_URL, {
+		method: "POST",
+		headers: { "Content-Type": "text/plain" },
+		body: JSON.stringify(payload)
+		})
+		.then(res => res.json())
+		.then(data => {
+		document.getElementById("status-message").innerText = "お疲れ様でした！すべてのデータがスプレッドシートに保存されました。";
+		})
+		.catch(err => {
+		console.error(err);
+		document.getElementById("status-message").innerText = "データの送信に失敗しましたが、ご協力ありがとうございました。";
+		});
 		}
 	</script>
-
 </body>
 </html>
