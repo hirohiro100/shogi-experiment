@@ -6,7 +6,7 @@
 	<style>
 		body {
 			font-family: sans-serif;
-			max-width: 650px;
+			max-width: 700px;
 			margin: 40px auto;
 			padding: 20px;
 			background-color: #f9f9f9;
@@ -40,22 +40,27 @@
 			height: auto;
 			border: 1px solid #ccc;
 		}
-
+		/* 7択ボタン用のスタイル */
 		.btn-group {
-			display: flex;
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
 			gap: 10px;
-			justify-content: center;
 			margin-top: 20px;
 		}
 
+			.btn-group button.full-width {
+				grid-column: span 2;
+			}
+
 		button {
-			padding: 12px 24px;
-			font-size: 16px;
+			padding: 12px 16px;
+			font-size: 15px;
 			cursor: pointer;
 			border: none;
 			border-radius: 4px;
 			background-color: #007bff;
 			color: white;
+			transition: background-color 0.2s;
 		}
 
 			button:hover {
@@ -81,7 +86,7 @@
 </head>
 <body>
 
-	<!-- 1. 実験の説明画面（ご要望の画面） -->
+	<!-- 1. 実験の説明画面 -->
 	<div id="intro-section" class="section active">
 		<h2>局面の形勢判断実験</h2>
 		<hr style="border:0; border-top:1px solid #ddd; margin-bottom:20px;">
@@ -91,7 +96,7 @@
 
 		<p>
 			<strong>■ 実験の内容</strong><br>
-			提示されるいくつかの将棋の局面図をご覧いただき、それぞれの局面における形勢（どちらが優勢か、互角かなど）について、最も適切と思われるものを選択してください。また、実験前にアンケートの記述をお願いします。
+			提示されるいくつかの将棋の局面図をご覧いただき、それぞれの局面における形勢を7段階（先手勝勢〜後手勝勢）の中から最も適切と思われるもの選択してください。また、実験前にアンケートの記述をお願いします。
 		</p>
 
 		<p><strong>■ 問題数</strong>：全120問（1構成30問 / 1問30秒程度・ただし目安）</p>
@@ -129,17 +134,23 @@
 		</div>
 	</div>
 
-	<!-- 3. 実験画面 -->
+	<!-- 3. 実験画面（7択） -->
 	<div id="experiment-section" class="section">
 		<h3 id="question-number">第 1 問</h3>
 		<div class="board-container">
 			<img id="board-image" src="" alt="局面図">
 		</div>
-		<p style="text-align: center; font-weight: bold;">現在の形勢は？</p>
+		<p style="text-align: center; font-weight: bold; margin-bottom: 10px;">現在の形勢は？</p>
+
+		<!-- 7択の選択肢ボタン -->
 		<div class="btn-group">
-			<button onclick="recordAnswer('優勢')">優勢</button>
-			<button onclick="recordAnswer('互角')">互角</button>
-			<button onclick="recordAnswer('劣勢')">劣勢</button>
+			<button onclick="recordAnswer('先手勝勢')">先手勝勢</button>
+			<button onclick="recordAnswer('先手優勢')">先手優勢</button>
+			<button onclick="recordAnswer('先手やや優勢')">先手やや優勢</button>
+			<button onclick="recordAnswer('互角')" class="full-width">互角</button>
+			<button onclick="recordAnswer('後手やや優勢')">後手やや優勢</button>
+			<button onclick="recordAnswer('後手優勢')">後手優勢</button>
+			<button onclick="recordAnswer('後手勝勢')">後手勝勢</button>
 		</div>
 	</div>
 
@@ -219,14 +230,15 @@
 		answers: results
 		};
 
-		// GASへデータを送信（CORS対策のため text/plain で送信）
+		// GASへデータを送信（no-corsモードまたは通常のfetchで確実に対処）
 		fetch(GAS_ENDPOINT_URL, {
 		method: "POST",
+		mode: "no-cors",
 		headers: { "Content-Type": "text/plain" },
 		body: JSON.stringify(payload)
 		})
-		.then(res => res.json())
-		.then(data => {
+		.then(() => {
+		// no-corsではレスポンスの中身が見れないため、送信完了として扱う
 		document.getElementById("status-message").innerText = "お疲れ様でした！すべてのデータがスプレッドシートに保存されました。";
 		})
 		.catch(err => {
